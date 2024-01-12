@@ -1,5 +1,6 @@
 package ru.fastdelivery.domain.delivery.pack;
 
+import ru.fastdelivery.domain.common.volume.Dimension;
 import ru.fastdelivery.domain.common.weight.Weight;
 
 import java.math.BigInteger;
@@ -9,7 +10,7 @@ import java.math.BigInteger;
  *
  * @param weight вес товаров в упаковке
  */
-public record Pack(Weight weight) {
+public record Pack(Weight weight, Dimension length, Dimension width, Dimension height) {
 
     private static final Weight maxWeight = new Weight(BigInteger.valueOf(150_000));
 

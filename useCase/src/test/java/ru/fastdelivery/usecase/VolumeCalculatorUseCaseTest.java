@@ -19,45 +19,40 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class TariffCalculateUseCaseTest {
+class VolumeCalculatorUseCaseTest {
 
     final WeightPriceProvider weightPriceProvider = mock(WeightPriceProvider.class);
+    final VolumePriceProvider volumePriceProvider = mock(VolumePriceProvider.class);
     final Currency currency = new CurrencyFactory(code -> true).create("RUB");
 
     final TariffCalculateUseCase tariffCalculateUseCase = new TariffCalculateUseCase(weightPriceProvider);
+    final VolumeCalculatorUseCase volumeCalculatorUseCase = new VolumeCalculatorUseCase(tariffCalculateUseCase, volumePriceProvider);
 
     @Test
     @DisplayName("Расчет стоимости доставки -> успешно")
     void whenCalculatePrice_thenSuccess() {
         var minimalPrice = new Price(BigDecimal.TEN, currency);
+        var pricePerCubicMeter = new Price(BigDecimal.valueOf(10000), currency);
         var pricePerKg = new Price(BigDecimal.valueOf(100), currency);
 
         when(weightPriceProvider.minimalPrice()).thenReturn(minimalPrice);
+        when(volumePriceProvider.costPerCubicMeter()).thenReturn(pricePerCubicMeter);
         when(weightPriceProvider.costPerKg()).thenReturn(pricePerKg);
 
         var shipment = new Shipment(List.of(new Pack(new Weight(BigInteger.valueOf(1200)),
-                        new Dimension(BigInteger.valueOf(345)),
-                        new Dimension(BigInteger.valueOf(589)),
-                        new Dimension(BigInteger.valueOf(234)))),
+                new Dimension(BigInteger.valueOf(345)),
+                new Dimension(BigInteger.valueOf(589)),
+                new Dimension(BigInteger.valueOf(234)))),
                 new CurrencyFactory(code -> true).create("RUB"));
-        var expectedPrice = new Price(BigDecimal.valueOf(120), currency);
 
-        var actualPrice = tariffCalculateUseCase.calc(shipment);
+        var expectedPrice = new Price(BigDecimal.valueOf(525), currency);
+
+        var weightBasedPrice = tariffCalculateUseCase.calc(shipment);
+        var actualPrice = volumeCalculatorUseCase.calc(shipment);
 
         assertThat(actualPrice).usingRecursiveComparison()
                 .withComparatorForType(BigDecimalComparator.BIG_DECIMAL_COMPARATOR, BigDecimal.class)
                 .isEqualTo(expectedPrice);
-    }
-
-    @Test
-    @DisplayName("Получение минимальной стоимости -> успешно")
-    void whenMinimalPrice_thenSuccess() {
-        BigDecimal minimalValue = BigDecimal.TEN;
-        var minimalPrice = new Price(minimalValue, currency);
-        when(weightPriceProvider.minimalPrice()).thenReturn(minimalPrice);
-
-        var actual = tariffCalculateUseCase.minimalPrice();
-
-        assertThat(actual).isEqualTo(minimalPrice);
+        assertThat(actualPrice.max(weightBasedPrice)).isEqualTo(actualPrice);
     }
 }

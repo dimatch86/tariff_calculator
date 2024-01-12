@@ -12,6 +12,7 @@ import ru.fastdelivery.presentation.api.request.CalculatePackagesRequest;
 import ru.fastdelivery.presentation.api.request.CargoPackage;
 import ru.fastdelivery.presentation.api.response.CalculatePackagesResponse;
 import ru.fastdelivery.usecase.TariffCalculateUseCase;
+import ru.fastdelivery.usecase.VolumeCalculatorUseCase;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -28,14 +29,16 @@ class CalculateControllerTest extends ControllerTest {
     TariffCalculateUseCase useCase;
     @MockBean
     CurrencyFactory currencyFactory;
+    @MockBean
+    VolumeCalculatorUseCase volumeCalculatorUseCase;
 
     @Test
     @DisplayName("Валидные данные для расчета стоимость -> Ответ 200")
     void whenValidInputData_thenReturn200() {
         var request = new CalculatePackagesRequest(
-                List.of(new CargoPackage(BigInteger.TEN)), "RUB");
+                List.of(new CargoPackage(BigInteger.TEN, BigInteger.ONE, BigInteger.TWO, BigInteger.valueOf(123))), "RUB");
         var rub = new CurrencyFactory(code -> true).create("RUB");
-        when(useCase.calc(any())).thenReturn(new Price(BigDecimal.valueOf(10), rub));
+        when(volumeCalculatorUseCase.calc(any())).thenReturn(new Price(BigDecimal.valueOf(10), rub));
         when(useCase.minimalPrice()).thenReturn(new Price(BigDecimal.valueOf(5), rub));
 
         ResponseEntity<CalculatePackagesResponse> response =
