@@ -11,11 +11,18 @@ public record CalculatePackagesRequest(
         @Schema(description = "Список упаковок отправления",
                 example = "[{\"weight\": 4056.45}]")
         @NotNull
-        @NotEmpty
+        @NotEmpty(message = "The cargo must contain a package")
         List<CargoPackage> packages,
 
         @Schema(description = "Трехбуквенный код валюты", example = "RUB")
-        @NotNull
-        String currencyCode
+        @NotNull(message = "The shipment must contain currency")
+        String currencyCode,
+        @Schema(description = "Координаты пункта назначения")
+        @NotNull(message = "The shipment must contain destination")
+        GeoPointDto destination,
+        @Schema(description = "Координаты пункта отправления")
+        @NotNull(message = "The shipment must contain departure")
+        GeoPointDto departure
+
 ) {
 }

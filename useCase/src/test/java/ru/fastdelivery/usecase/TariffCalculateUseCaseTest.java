@@ -5,6 +5,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.fastdelivery.domain.common.currency.Currency;
 import ru.fastdelivery.domain.common.currency.CurrencyFactory;
+import ru.fastdelivery.domain.common.geographic.GeoPoint;
+import ru.fastdelivery.domain.common.geographic.Latitude;
+import ru.fastdelivery.domain.common.geographic.Longitude;
 import ru.fastdelivery.domain.common.price.Price;
 import ru.fastdelivery.domain.common.volume.Dimension;
 import ru.fastdelivery.domain.common.weight.Weight;
@@ -39,7 +42,9 @@ class TariffCalculateUseCaseTest {
                         new Dimension(BigInteger.valueOf(345)),
                         new Dimension(BigInteger.valueOf(589)),
                         new Dimension(BigInteger.valueOf(234)))),
-                new CurrencyFactory(code -> true).create("RUB"));
+                new CurrencyFactory(code -> true).create("RUB"),
+                new GeoPoint(new Latitude(BigDecimal.valueOf(55.7522)), new Longitude(BigDecimal.valueOf(37.6156))),
+                new GeoPoint(new Latitude(BigDecimal.valueOf(59.9386)), new Longitude(BigDecimal.valueOf(30.3141))));
         var expectedPrice = new Price(BigDecimal.valueOf(120), currency);
 
         var actualPrice = tariffCalculateUseCase.calc(shipment);

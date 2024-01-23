@@ -2,10 +2,11 @@ package ru.fastdelivery.usecase;
 
 import lombok.RequiredArgsConstructor;
 import ru.fastdelivery.domain.common.price.Price;
+import ru.fastdelivery.domain.common.volume.VolumePriceProvider;
 import ru.fastdelivery.domain.delivery.shipment.Shipment;
 
 @RequiredArgsConstructor
-public class VolumeCalculatorUseCase {
+public class VolumeCalculateUseCase {
     private final TariffCalculateUseCase tariffCalculateUseCase;
     private final VolumePriceProvider volumePriceProvider;
 

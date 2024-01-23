@@ -11,14 +11,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.fastdelivery.domain.common.currency.CurrencyFactory;
-import ru.fastdelivery.domain.common.volume.Dimension;
+import ru.fastdelivery.domain.common.geographic.GeoLocationFactory;
+import ru.fastdelivery.domain.common.geographic.GeoPoint;
+import ru.fastdelivery.domain.common.volume.DimensionFactory;
 import ru.fastdelivery.domain.common.weight.Weight;
 import ru.fastdelivery.domain.delivery.pack.Pack;
 import ru.fastdelivery.domain.delivery.shipment.Shipment;
 import ru.fastdelivery.presentation.api.request.CalculatePackagesRequest;
 import ru.fastdelivery.presentation.api.response.CalculatePackagesResponse;
+import ru.fastdelivery.usecase.DistanceAccountingUseCase;
 import ru.fastdelivery.usecase.TariffCalculateUseCase;
-import ru.fastdelivery.usecase.VolumeCalculatorUseCase;
 
 @RestController
 @RequestMapping("/api/v1/calculate/")
@@ -26,8 +28,10 @@ import ru.fastdelivery.usecase.VolumeCalculatorUseCase;
 @Tag(name = "Расчеты стоимости доставки")
 public class CalculateController {
     private final TariffCalculateUseCase tariffCalculateUseCase;
-    private final VolumeCalculatorUseCase volumeCalculatorUseCase;
+    private final DistanceAccountingUseCase distanceAccountingUseCase;
     private final CurrencyFactory currencyFactory;
+    private final GeoLocationFactory geoLocationFactory;
+    private final DimensionFactory dimensionFactory;
 
     @PostMapping
     @Operation(summary = "Расчет стоимости по упаковкам груза")
@@ -41,16 +45,18 @@ public class CalculateController {
         var packsToCalculate = request.packages().stream()
                 .map(cargoPackage ->
                         new Pack(new Weight(cargoPackage.weight()),
-                        new Dimension(cargoPackage.length()),
-                        new Dimension(cargoPackage.width()),
-                        new Dimension(cargoPackage.height())))
-
+                        dimensionFactory.create(cargoPackage.length()),
+                        dimensionFactory.create(cargoPackage.width()),
+                        dimensionFactory.create(cargoPackage.height())))
                 .toList();
+        var departure = new GeoPoint(geoLocationFactory.createLatitude(request.departure().latitude()) , geoLocationFactory.createLongitude(request.departure().longitude()));
+        var destination = new GeoPoint(geoLocationFactory.createLatitude(request.destination().latitude()) , geoLocationFactory.createLongitude(request.destination().longitude()));
 
-        var shipment = new Shipment(packsToCalculate, currencyFactory.create(request.currencyCode()));
+        var shipment = new Shipment(packsToCalculate,
+                currencyFactory.create(request.currencyCode()), departure, destination);
         var minimalPrice = tariffCalculateUseCase.minimalPrice();
-        var priceByVolumeOrWeight = volumeCalculatorUseCase.calc(shipment);
-        return new CalculatePackagesResponse(priceByVolumeOrWeight, minimalPrice);
+        var priceWithDistance = distanceAccountingUseCase.calc(shipment);
+        return new CalculatePackagesResponse(priceWithDistance, minimalPrice);
     }
 }
 

@@ -34,10 +34,7 @@ public class VolumePricePropertiesTest {
     @Test
     void whenCallPricePerCubicMeter_thenRequestFromConfig() {
         var actual = properties.costPerCubicMeter();
-        System.out.println(actual);
-
         verify(currencyFactory).create("RUB");
-        System.out.println(actual.currency().getCode());
         assertThat(actual.amount()).isEqualTo(PER_CUBIC_METER);
         assertThat(actual.currency().getCode()).isEqualTo("RUB");
     }

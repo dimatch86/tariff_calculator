@@ -3,7 +3,14 @@ currency:
     - "RUB"
 cost:
   rub:
-    perKg: 400
+    perKg: 100
     minimal: 350
-app:
-  perCubicMeter: 100000
+volume:
+  perCubicMeter: 10000
+  maxDimension: 1500
+distance:
+  baseRateDistanceKilometers: 450
+  minLatitude: 45
+  maxLatitude: 65
+  minLongitude: 30
+  maxLongitude: 96

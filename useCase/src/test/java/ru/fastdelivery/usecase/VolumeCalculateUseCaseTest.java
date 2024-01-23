@@ -5,8 +5,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.fastdelivery.domain.common.currency.Currency;
 import ru.fastdelivery.domain.common.currency.CurrencyFactory;
+import ru.fastdelivery.domain.common.geographic.GeoPoint;
+import ru.fastdelivery.domain.common.geographic.Latitude;
+import ru.fastdelivery.domain.common.geographic.Longitude;
 import ru.fastdelivery.domain.common.price.Price;
 import ru.fastdelivery.domain.common.volume.Dimension;
+import ru.fastdelivery.domain.common.volume.VolumePriceProvider;
 import ru.fastdelivery.domain.common.weight.Weight;
 import ru.fastdelivery.domain.delivery.pack.Pack;
 import ru.fastdelivery.domain.delivery.shipment.Shipment;
@@ -19,14 +23,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class VolumeCalculatorUseCaseTest {
+class VolumeCalculateUseCaseTest {
 
     final WeightPriceProvider weightPriceProvider = mock(WeightPriceProvider.class);
     final VolumePriceProvider volumePriceProvider = mock(VolumePriceProvider.class);
     final Currency currency = new CurrencyFactory(code -> true).create("RUB");
 
     final TariffCalculateUseCase tariffCalculateUseCase = new TariffCalculateUseCase(weightPriceProvider);
-    final VolumeCalculatorUseCase volumeCalculatorUseCase = new VolumeCalculatorUseCase(tariffCalculateUseCase, volumePriceProvider);
+    final VolumeCalculateUseCase volumeCalculateUseCase = new VolumeCalculateUseCase(tariffCalculateUseCase, volumePriceProvider);
 
     @Test
     @DisplayName("Расчет стоимости доставки -> успешно")
@@ -43,12 +47,14 @@ class VolumeCalculatorUseCaseTest {
                 new Dimension(BigInteger.valueOf(345)),
                 new Dimension(BigInteger.valueOf(589)),
                 new Dimension(BigInteger.valueOf(234)))),
-                new CurrencyFactory(code -> true).create("RUB"));
+                new CurrencyFactory(code -> true).create("RUB"),
+                new GeoPoint(new Latitude(BigDecimal.valueOf(59.9386)), new Longitude(BigDecimal.valueOf(30.3141))),
+                new GeoPoint(new Latitude(BigDecimal.valueOf(55.7522)), new Longitude(BigDecimal.valueOf(37.6156))));
 
         var expectedPrice = new Price(BigDecimal.valueOf(525), currency);
 
         var weightBasedPrice = tariffCalculateUseCase.calc(shipment);
-        var actualPrice = volumeCalculatorUseCase.calc(shipment);
+        var actualPrice = volumeCalculateUseCase.calc(shipment);
 
         assertThat(actualPrice).usingRecursiveComparison()
                 .withComparatorForType(BigDecimalComparator.BIG_DECIMAL_COMPARATOR, BigDecimal.class)

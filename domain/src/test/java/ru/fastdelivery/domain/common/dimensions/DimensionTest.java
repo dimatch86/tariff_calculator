@@ -20,19 +20,11 @@ class DimensionTest {
     }
 
     @Test
-    @DisplayName("Попытка передать габарит больше максимального -> исключение")
-    void whenLengthMoreThanMaxLength_thenThrowException() {
-        var length = BigInteger.valueOf(1501);
-        assertThatThrownBy(() -> new Dimension(length))
-                .isInstanceOf(IllegalArgumentException.class);
-    }
-
-    @Test
     @DisplayName("Округление габарита кратно 50")
     void whenNormalizeLength_thenReturnsNormalizedLengthValue() {
 
         var length = new Dimension(BigInteger.valueOf(224));
-        var normalizedLengthValue = length.getNormalizedDimension();
+        var normalizedLengthValue = length.normalizeDimension();
         var intValue = normalizedLengthValue.intValue();
 
         assertThat(intValue % 50).isZero();
