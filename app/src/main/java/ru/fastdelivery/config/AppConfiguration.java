@@ -17,7 +17,7 @@ import ru.fastdelivery.usecase.WeightPriceProvider;
  * Определение реализаций бинов для всех модулей приложения
  */
 @Configuration
-public class Beans {
+public class AppConfiguration {
 
     @Bean
     public CurrencyFactory currencyFactory(CurrencyPropertiesProvider currencyProperties) {

@@ -16,8 +16,10 @@ public class DistanceCalculator {
             new GeodeticCalculator(DefaultGeographicCRS.WGS84);
 
     public Distance calculateDistance(GeoPoint destination, GeoPoint departure) {
-        geodeticCalculator.setStartingGeographicPoint(departure.longitude().longitudeValue().doubleValue(), departure.latitude().latitudeValue().doubleValue());
-        geodeticCalculator.setDestinationGeographicPoint(destination.longitude().longitudeValue().doubleValue(), destination.latitude().latitudeValue().doubleValue());
+        geodeticCalculator.setStartingGeographicPoint(departure.longitude().longitudeValue().doubleValue(),
+                departure.latitude().latitudeValue().doubleValue());
+        geodeticCalculator.setDestinationGeographicPoint(destination.longitude().longitudeValue().doubleValue(),
+                destination.latitude().latitudeValue().doubleValue());
         return new Distance(BigDecimal.valueOf(geodeticCalculator.getOrthodromicDistance()));
     }
 }

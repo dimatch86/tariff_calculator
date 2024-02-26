@@ -16,7 +16,8 @@ public record CalculatePackagesResponse (
         String currencyCode
 ) {
     public CalculatePackagesResponse(Price totalPrice, Price minimalPrice) {
-        this(totalPrice.amount().setScale(2, RoundingMode.UP), minimalPrice.amount(), totalPrice.currency().getCode());
+        this(totalPrice.amount().setScale(2, RoundingMode.UP), minimalPrice.amount(), totalPrice.currency()
+                .getCode());
 
         if (currencyIsNotEqual(totalPrice, minimalPrice)) {
             throw new IllegalArgumentException("Currency codes must be the same");
